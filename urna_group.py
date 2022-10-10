@@ -1,23 +1,21 @@
+from joblib import dump, load
+
 import numpy as np
-
-
 from sklearn.cluster import Birch
 from sklearn.cluster import MiniBatchKMeans
 from sklearn import metrics
 from sklearn.datasets import make_blobs
 from sklearn.preprocessing import StandardScaler
 
-def prepare():
-    brc = MiniBatchKMeans(n_clusters=40)
-    #brc = Birch()
+
+def prepare(n_clusters):
+    brc = MiniBatchKMeans(n_clusters=n_clusters)
     return brc
     
 def partial_fit(brc, X):
     brc.partial_fit(X)
 
-def count(brc, clusters, X):
-    #brc.set_params(n_clusters=clusters)
-    #brc.partial_fit()
+def count(brc, X):
     labels = brc.labels_
     
     n_clusters_ = len(set(labels)) - (1 if -1 in labels else 0)
@@ -32,3 +30,6 @@ def count(brc, clusters, X):
         print("Silhouette Coefficient: %0.3f" % metrics.silhouette_score(X, labels))
     print("Cluster centers", brc.cluster_centers_)
     
+
+def save(brc, fname='model'):
+     dump(brc, fname + '.joblib') 

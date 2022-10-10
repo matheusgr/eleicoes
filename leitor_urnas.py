@@ -47,10 +47,8 @@ def ler_rdv(encoded_rdv):
 
 logs = []
 
-brc = urna_group.prepare()
+brcs = [urna_group.prepare(x) for x in range(2,14)]
 sample = None
-    
-sec = 0
 
 for fname in os.listdir("urnas"):
     f_urna = "urnas" + os.sep + fname
@@ -60,31 +58,44 @@ for fname in os.listdir("urnas"):
         for zip_name in myzip.namelist():
             if not zip_name.endswith('rdv'):
                 continue
-            if random.randint(0, 100) > 1:  # sample 1% of votes
-                continue
+            #if random.randint(0, 10) > 1:  # sample 10% of votes
+            #    continue
+            logejz_name = zip_name[:-3] + 'logjez'
+            try:
+                my_file = myzip.open(logejz_name)
+            except:
+                continue  # dont read RDV without logejz
             with myzip.open(zip_name) as myfile:
                 # 13, 22, brancos/nulos, outros
                 res_presidentes =  ler_rdv(myfile.read())
-            logejz_name = zip_name.split('.')[0] + '.logjez'
-            if logejz_name not in myzip.namelist():
-                continue
-            with py7zr.SevenZipFile(myzip.open(logejz_name)) as f_log:
-                print(sec)
-                sec += 1
-                file_content = f_log.read('logd.dat')
-                # [secao1, secao2, secao3, ...] --> secao1 = [v1, v2, v3, ...]
-                resultados = process_log(file_content['logd.dat'], sum(res_presidentes))
-                # 5 cargos tempo/erros -> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
-                if not resultados is None:
-                    logs = resultados
+            f_log = py7zr.SevenZipFile(my_file)
+            file_content = f_log.read('logd.dat')
+            # [secao1, secao2, secao3, ...] --> secao1 = [v1, v2, v3, ...]
+            resultados = process_log(file_content['logd.dat'], sum(res_presidentes))
+            # 5 cargos tempo/erros -> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
+            if not resultados is None:
+                logs = resultados
+                for brc in brcs:
                     urna_group.partial_fit(brc, logs)
-                    if sample is None:
-                        sample = logs[np.random.choice(logs.shape[0], 1)]
-                    else:
-                        # FIXME get one from sample
-                        sample = np.concatenate((sample, logs[np.random.choice(logs.shape[0], 1)]))
-                    logs = []
+                if sample is None:
+                    sample = logs[np.random.choice(logs.shape[0], 1)]
+                else:
+                    # FIXME get one from sample
+                    sample = np.concatenate((sample, logs[np.random.choice(logs.shape[0], 1)]))
+                logs = []
 
-urna_group.count(brc, 20, sample)
+for i, brc in enumerate(brcs):
+    urna_group.count(brc, sample)
+    urna_group.save(brc, 'model-' + str(i))
+
+# 2 0.745
+# 3 0.597
+# 4 0.526
+# 5 0.206
+# 6 0.288
+# 8  0.246
+# 10 0.234
+# 12 
 
 # pstats.Stats('prof').sort_stats('tottime').reverse_order().print_stats()
+# python -m cProfile -o prof leitor_urnas.py
