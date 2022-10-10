@@ -60,7 +60,7 @@ for fname in os.listdir("urnas"):
         for zip_name in myzip.namelist():
             if not zip_name.endswith('rdv'):
                 continue
-            if random.randint(0, 1000) > 1:  # sample 1% of votes
+            if random.randint(0, 100) > 1:  # sample 1% of votes
                 continue
             with myzip.open(zip_name) as myfile:
                 # 13, 22, brancos/nulos, outros
@@ -73,12 +73,10 @@ for fname in os.listdir("urnas"):
                 sec += 1
                 file_content = f_log.read('logd.dat')
                 # [secao1, secao2, secao3, ...] --> secao1 = [v1, v2, v3, ...]
-                resultados = process_log(file_content['logd.dat'])
-                if resultados:
-                    logs.append(resultados)
+                resultados = process_log(file_content['logd.dat'], sum(res_presidentes))
                 # 5 cargos tempo/erros -> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
-                if logs:
-                    logs = np.concatenate([np.array(i) for i in logs])
+                if not resultados is None:
+                    logs = resultados
                     urna_group.partial_fit(brc, logs)
                     if sample is None:
                         sample = logs[np.random.choice(logs.shape[0], 1)]
