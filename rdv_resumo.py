@@ -367,3 +367,42 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+############################
+
+# Matheusgr:
+
+def ler_rdv(encoded_rdv):
+    resultado_rdv = EntidadeResultadoRDV.load(encoded_rdv)
+    rdv = resultado_rdv["rdv"]
+    eleicoes = rdv["eleicoes"].chosen
+    resultados = {"13": 0, "22": 0, "branco": 0, "nulo" : 0}
+    i = 0
+    for eleicao in eleicoes:
+        votos_cargos = eleicao["votosCargos"]
+        for votos_cargo in votos_cargos:
+            if ("Presidente" != votos_cargo['idCargo'].chosen.native):
+                break
+            votos = votos_cargo["votos"]
+            for voto in votos:
+                i += 1
+                digitacao = voto["digitacao"]
+                tipo = voto["tipoVoto"]  # nominal, branco, nulo
+                if digitacao == asn1.VOID:
+                    resultados["branco"] = resultados.get("branco", 0) + 1
+                else:
+                    if str(tipo.native) == 'nulo':
+                        resultados["nulo"] = resultados.get('nulo', 0) + 1
+                    else:
+                        resultados[str(digitacao)] = resultados.get(str(digitacao), 0) + 1
+    return simplifica_eleicao(resultados), i
+
+
+def simplifica_eleicao(resultados):
+    final = [resultados["13"], resultados["22"], resultados["branco"], resultados["nulo"]]
+    final.append(sum(resultados.values()) - sum(final))  # outros
+    return final
+
+def normaliza_eleicao(resultados):
+    total = sum(resultados)
+    return [int(100*x/total) for x in resultados]

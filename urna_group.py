@@ -1,4 +1,4 @@
-from joblib import dump, load
+import joblib
 
 import numpy as np
 from sklearn.cluster import Birch
@@ -18,6 +18,9 @@ def partial_fit(brc, X):
 def count(brc, X):
     labels = brc.labels_
     
+    x_labels, x_counts = np.unique(labels[labels >= 0], return_counts=True)
+    print(x_labels[np.argsort(-x_counts)[:3]])
+    
     n_clusters_ = len(set(labels)) - (1 if -1 in labels else 0)
     print(n_clusters_)
     n_clusters_ = np.unique(labels).size
@@ -32,4 +35,7 @@ def count(brc, X):
     
 
 def save(brc, fname='model'):
-     dump(brc, fname + '.joblib') 
+     joblib.dump(brc, fname + '.joblib') 
+
+def load(fname):
+    return joblib.load(fname)
