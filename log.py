@@ -39,7 +39,7 @@ def process_log(lines, expected):
                 c_tecl = 0
             elif b"Eleitor foi habilitado" in c_data:
                 i = 0
-                result[t][i] = max(0, min(10, (int(c_time[0:2]) - 8)))/18.0  # tempo
+                result[t][i] = max(0, min(10, (int(c_time[0:2]) - 8)))/10.0  # tempo
                 i += 1
                 c_tecl = 0
                 i_time = c_time
