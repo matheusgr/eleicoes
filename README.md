@@ -12,6 +12,8 @@ Para executar, coloque na pasta `urnas` os arquivos do TSE (como `bu_imgbu_logje
 
 É preciso instalar o `scikit-learn`, `asn1crypto` e `py7zr`.
 
+Para executar: `python leitor_urnas.py`.
+
 ---
 
 Resultados iniciais apontaram uma silhueta de ~0.225 para o melhor agrupamento, além de uma predição que não teve efeito (igual ou próximo do erro ao comparar com a média).
