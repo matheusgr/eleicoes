@@ -4,9 +4,9 @@ def prepare():
     clf = MLPClassifier(solver='adam', alpha=1e-5, random_state=1)
     return clf
     
-def partial_fit(clf, X, y):
+def partial_fit(clf, x_data, y):
     #print(X, y, list(range(0,101)))
-    clf.partial_fit(X, y, classes=list(range(0,101)))
+    clf.partial_fit(x_data, y, classes=list(range(0,101)))
 
-def test(clf, X, y):
-    return clf.score(X, y)
+def test(clf, x_data, y):
+    return clf.score(x_data, y)
