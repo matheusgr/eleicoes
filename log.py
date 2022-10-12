@@ -12,10 +12,10 @@ i_time = 0
 e_time = 0
 c_tecl = 0
 
-LEN_SIZE = 11
+LEN_SIZE = 10
 
 def process_log(lines, expected):
-    result = np.empty((expected * 5, LEN_SIZE), dtype="ubyte")
+    result = np.empty((expected * 5, LEN_SIZE), dtype="float")
     t = 0
     i = 0
     for line in lines:
@@ -25,19 +25,16 @@ def process_log(lines, expected):
         c_data = fields[4]
         if c_event == b"VOTA":
             if b"Voto confirmado para " in c_data:
-                f_sec = convert_date(c_time) - convert_date(v_time)
                 if i == LEN_SIZE:
-                    continue  # Conselheiro digital para algumas urnas
-                result[t][i] = min(10, f_sec)/10.0
-                i += 1
-                result[t][i] = min(5, c_tecl)/5.0
-                i += 1
+                    continue  # Conselheiro distrital ou outros cargos para algumas urnas
+                f_sec = convert_date(c_time) - convert_date(v_time)
+                result[t][i] = min(60, f_sec)/60.0
+                result[t][i + 1] = min(5, c_tecl)/5.0
+                i += 2
                 v_time = c_time
                 c_tecl = 0
             elif b"Eleitor foi habilitado" in c_data:
                 i = 0
-                result[t][i] = max(0, min(10, (int(c_time[0:2]) - 8)))/10.0  # tempo
-                i += 1
                 c_tecl = 0
                 v_time = c_time
             elif b"O voto do eleitor foi computado" in c_data:
